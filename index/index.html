@@ -1,0 +1,299 @@
+<!DOCTYPE html>
+<html lang="uk">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Мікроскопічна експедиція</title>
+<style>
+:root{
+  --bg:#eef7f8; --card:#ffffff; --ink:#17313b; --muted:#60777f;
+  --accent:#197c8c; --accent2:#7b4bb7; --good:#20844a; --bad:#c84646;
+  --line:#d6e6e8; --shadow:0 12px 30px rgba(22,55,65,.10);
+}
+*{box-sizing:border-box}
+body{margin:0;font-family:Arial,"Segoe UI",sans-serif;background:linear-gradient(135deg,#eaf7f8,#f7f3ff);color:var(--ink)}
+.container{max-width:1100px;margin:auto;padding:22px}
+.hero{background:linear-gradient(135deg,#155e69,#7145a8);color:white;border-radius:28px;padding:34px;box-shadow:var(--shadow);position:relative;overflow:hidden}
+.hero:after{content:"🔬  🧬  🧫  🦠";position:absolute;right:25px;bottom:18px;font-size:42px;opacity:.22}
+h1{font-size:clamp(30px,5vw,54px);margin:0 0 10px}
+h2{font-size:30px;margin-top:0}.subtitle{font-size:19px;opacity:.92;max-width:760px}
+.progress-wrap{background:#dbecef;border-radius:20px;height:15px;margin:20px 0 6px;overflow:hidden}
+.progress{height:100%;width:0;background:linear-gradient(90deg,#39c7b3,#b985ef);transition:.4s}
+.progress-label{font-size:14px;color:var(--muted)}
+.card{background:var(--card);border:1px solid var(--line);border-radius:22px;padding:25px;margin-top:20px;box-shadow:var(--shadow)}
+.hidden{display:none!important}
+input,textarea,select{width:100%;padding:13px 15px;border:2px solid var(--line);border-radius:13px;font-size:16px;background:white;color:var(--ink)}
+textarea{min-height:100px;resize:vertical}
+button{border:0;border-radius:13px;padding:13px 20px;font-size:16px;font-weight:700;cursor:pointer;background:var(--accent);color:white;transition:.2s}
+button:hover{transform:translateY(-1px);filter:brightness(1.05)}
+button.secondary{background:#e8f1f3;color:var(--ink)}
+button.purple{background:var(--accent2)}
+button:disabled{opacity:.5;cursor:not-allowed;transform:none}
+.nav{display:flex;gap:10px;flex-wrap:wrap;margin-top:18px}
+.choice-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(190px,1fr));gap:12px}
+.choice{background:#f8fbfb;border:2px solid var(--line);color:var(--ink);text-align:left}
+.choice.selected{border-color:var(--accent);background:#e8f7f8}
+.choice.correct{border-color:var(--good);background:#eaf8ef}
+.choice.wrong{border-color:var(--bad);background:#fff0f0}
+.feedback{margin-top:14px;padding:13px;border-radius:12px;font-weight:700}
+.good{background:#eaf8ef;color:#176438}.bad{background:#fff0f0;color:#9c3030}
+.microscope{display:grid;grid-template-columns:1fr 1fr;gap:20px;align-items:center}
+.mscope{min-height:390px;background:radial-gradient(circle at 50% 55%,#d9f5f4 0 12%,transparent 13%),linear-gradient(#f9ffff,#edf7f8);border:2px dashed #a9ced2;border-radius:20px;position:relative;overflow:hidden}
+.part{position:absolute;padding:8px 12px;border-radius:10px;background:#155e69;color:#fff;font-size:14px;cursor:pointer;box-shadow:0 4px 10px #0002}
+.part:hover{background:#7b4bb7}
+.p-eyepiece{top:25px;left:44%}.p-tube{top:92px;left:43%}.p-revolver{top:150px;left:39%}
+.p-objective{top:195px;left:31%}.p-stage{top:245px;left:38%}.p-light{bottom:35px;left:42%}
+.p-focus{top:205px;right:12%}.p-arm{top:175px;right:4%}.p-base{bottom:8px;left:35%}
+.info-box{padding:16px;background:#f4f8fa;border-radius:15px;min-height:100px}
+.sequence{display:flex;flex-direction:column;gap:10px}
+.seq-item{padding:14px;background:#f7fbfc;border:2px solid var(--line);border-radius:13px;cursor:grab;display:flex;align-items:center;gap:10px}
+.seq-item.dragging{opacity:.45}.num{width:30px;height:30px;border-radius:50%;background:#dceff1;display:grid;place-items:center;font-weight:700}
+.specimen-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:15px}
+.specimen{min-height:190px;border-radius:18px;padding:18px;position:relative;overflow:hidden;color:#17313b}
+.specimen.mucor{background:radial-gradient(circle at 30% 35%,#65427e 0 5%,transparent 6%),radial-gradient(circle at 65% 60%,#76558d 0 5%,transparent 6%),#f1eaf7}
+.specimen.droso{background:radial-gradient(circle at 50% 48%,#9b663c 0 16%,transparent 17%),#fff3df}
+.specimen.algae{background:repeating-linear-gradient(0deg,#dff2df 0 16px,#b8dbb8 17px 19px)}
+.specimen h3{margin-top:0}.tag{display:inline-block;padding:6px 9px;border-radius:9px;background:#ffffffb8;font-size:13px;margin:3px}
+.task{border-left:5px solid var(--accent);padding:14px 16px;background:#f5fafb;border-radius:0 13px 13px 0;margin:14px 0}
+.quiz{margin-top:15px}.quiz-q{font-weight:700;margin:16px 0 9px}
+label.radio{display:block;padding:10px;border:1px solid var(--line);border-radius:10px;margin:6px 0;cursor:pointer}
+label.radio:hover{background:#f6fbfc}
+.score{font-size:22px;font-weight:800}
+.final-badge{font-size:25px;padding:18px;border-radius:18px;background:#f4ecff;border:2px solid #cbb1eb;text-align:center}
+.footer{text-align:center;color:var(--muted);padding:30px 10px;font-size:13px}
+@media(max-width:760px){
+ .microscope,.specimen-grid{grid-template-columns:1fr}
+ .hero{padding:25px}.container{padding:12px}
+}
+</style>
+</head>
+<body>
+<div class="container">
+  <section class="hero">
+    <h1>🔬 Мікроскопічна експедиція</h1>
+    <div class="subtitle">Інтерактивний аркуш: будова мікроскопа та дослідження постійних мікропрепаратів «Цвіль Mucor», «Дрозофіла», «Нитчасті водорості».</div>
+    <div class="progress-wrap"><div class="progress" id="progress"></div></div>
+    <div class="progress-label" id="progressLabel">Експедиція ще не розпочата</div>
+  </section>
+
+  <section id="start" class="card">
+    <h2>🚀 Старт експедиції</h2>
+    <p>Введи своє ім'я та вирушай у мікросвіт. За правильні відповіді ти отримуватимеш бали.</p>
+    <input id="studentName" placeholder="Твоє ім'я та прізвище">
+    <div class="nav"><button onclick="startExpedition()">Почати експедицію</button></div>
+  </section>
+
+  <main id="main" class="hidden">
+    <section class="card step" id="step1">
+      <h2>🔬 Рівень 1. Збери мікроскоп</h2>
+      <p>Натискай на елементи схеми та дізнавайся, за що вони відповідають.</p>
+      <div class="microscope">
+        <div class="mscope">
+          <button class="part p-eyepiece" onclick="showPart('Окуляр','Через окуляр ми спостерігаємо збільшене зображення.')">Окуляр</button>
+          <button class="part p-tube" onclick="showPart('Тубус','З’єднує окуляр та систему об’єктивів.')">Тубус</button>
+          <button class="part p-revolver" onclick="showPart('Револьвер','Дає змогу швидко змінювати об’єктиви.')">Револьвер</button>
+          <button class="part p-objective" onclick="showPart('Об’єктив','Формує основне збільшення зображення.')">Об’єктив</button>
+          <button class="part p-stage" onclick="showPart('Предметний столик','На ньому розміщують і закріплюють препарат.')">Столик</button>
+          <button class="part p-light" onclick="showPart('Освітлювач','Направляє світло на препарат.')">Освітлювач</button>
+          <button class="part p-focus" onclick="showPart('Гвинт фокусування','Допомагає отримати чітке зображення.')">Фокус</button>
+          <button class="part p-arm" onclick="showPart('Штатив','Підтримує основні частини мікроскопа.')">Штатив</button>
+          <button class="part p-base" onclick="showPart('Основа','Забезпечує стійкість мікроскопа.')">Основа</button>
+        </div>
+        <div class="info-box" id="partInfo">👆 Натисни на будь-яку частину мікроскопа.</div>
+      </div>
+      <div class="task"><b>Мінітест:</b> Яка частина забезпечує основне збільшення об’єкта?
+        <div class="choice-grid" id="q1">
+          <button class="choice" onclick="answer('q1',this,false)">Окуляр</button>
+          <button class="choice" onclick="answer('q1',this,true)">Об’єктив</button>
+          <button class="choice" onclick="answer('q1',this,false)">Основа</button>
+          <button class="choice" onclick="answer('q1',this,false)">Столик</button>
+        </div>
+        <div id="q1fb"></div>
+      </div>
+      <div class="nav"><button onclick="nextStep(1)">Далі →</button></div>
+    </section>
+
+    <section class="card step hidden" id="step2">
+      <h2>⚙️ Рівень 2. Налаштуй мікроскоп</h2>
+      <p>Перетягни етапи в правильній послідовності.</p>
+      <div class="sequence" id="sequence">
+        <div class="seq-item" draggable="true" data-order="4"><span class="num">↕</span>Закріпити препарат</div>
+        <div class="seq-item" draggable="true" data-order="1"><span class="num">↕</span>Обрати мале збільшення</div>
+        <div class="seq-item" draggable="true" data-order="6"><span class="num">↕</span>Налаштувати різкість</div>
+        <div class="seq-item" draggable="true" data-order="3"><span class="num">↕</span>Розмістити препарат на столику</div>
+        <div class="seq-item" draggable="true" data-order="5"><span class="num">↕</span>Подивитися в окуляр</div>
+        <div class="seq-item" draggable="true" data-order="2"><span class="num">↕</span>Налаштувати освітлення</div>
+        <div class="seq-item" draggable="true" data-order="7"><span class="num">↕</span>За потреби перейти на більше збільшення</div>
+      </div>
+      <div class="nav"><button onclick="checkSequence()">Перевірити послідовність</button></div>
+      <div id="seqFb"></div>
+      <div class="task"><b>Подумай:</b> Чому дослідження починають із малого збільшення?</div>
+      <textarea id="reflection1" placeholder="Напиши власну відповідь..."></textarea>
+      <div class="nav"><button onclick="nextStep(2)">Далі →</button></div>
+    </section>
+
+    <section class="card step hidden" id="step3">
+      <h2>🍄 Рівень 3. Колекція мікропрепаратів</h2>
+      <p>Ознайомся з трьома об’єктами дослідження. Натискай на картки.</p>
+      <div class="specimen-grid">
+        <div class="specimen mucor">
+          <h3>🍄 Mucor</h3>
+          <p>Цвіль із нитчастими структурами.</p>
+          <span class="tag">гіфи</span><span class="tag">спорангії</span><span class="tag">спори</span>
+        </div>
+        <div class="specimen droso">
+          <h3>🪰 Дрозофіла</h3>
+          <p>Невелика комаха — відомий об’єкт біологічних досліджень.</p>
+          <span class="tag">голова</span><span class="tag">груди</span><span class="tag">черевце</span>
+        </div>
+        <div class="specimen algae">
+          <h3>🌿 Нитчасті водорості</h3>
+          <p>Клітини послідовно утворюють довгі нитки.</p>
+          <span class="tag">клітини</span><span class="tag">нитка</span>
+        </div>
+      </div>
+      <div class="task">
+        <b>Запиши спостереження:</b>
+        <textarea id="observations" placeholder="Що ти очікуєш побачити у кожному препараті?"></textarea>
+      </div>
+      <div class="nav"><button onclick="nextStep(3)">Далі →</button></div>
+    </section>
+
+    <section class="card step hidden" id="step4">
+      <h2>🕵️ Рівень 4. Мікроскопічний детектив</h2>
+      <p>Вибери правильний мікропрепарат.</p>
+      <div class="quiz">
+        <div class="quiz-q">1. «Я — маленька комаха. Моє тіло складається з голови, грудей і черевця».</div>
+        <div class="choice-grid" id="q2">
+          <button class="choice" onclick="answer('q2',this,false)">Mucor</button>
+          <button class="choice" onclick="answer('q2',this,true)">Дрозофіла</button>
+          <button class="choice" onclick="answer('q2',this,false)">Нитчасті водорості</button>
+        </div><div id="q2fb"></div>
+        <div class="quiz-q">2. «Утворюю спорангії та поширююся за допомогою спор».</div>
+        <div class="choice-grid" id="q3">
+          <button class="choice" onclick="answer('q3',this,true)">Mucor</button>
+          <button class="choice" onclick="answer('q3',this,false)">Дрозофіла</button>
+          <button class="choice" onclick="answer('q3',this,false)">Нитчасті водорості</button>
+        </div><div id="q3fb"></div>
+        <div class="quiz-q">3. «Складаюся з послідовно розташованих клітин і маю нитчасту форму».</div>
+        <div class="choice-grid" id="q4">
+          <button class="choice" onclick="answer('q4',this,false)">Mucor</button>
+          <button class="choice" onclick="answer('q4',this,false)">Дрозофіла</button>
+          <button class="choice" onclick="answer('q4',this,true)">Нитчасті водорості</button>
+        </div><div id="q4fb"></div>
+      </div>
+      <div class="nav"><button onclick="nextStep(4)">Далі →</button></div>
+    </section>
+
+    <section class="card step hidden" id="step5">
+      <h2>🌿 Рівень 5. Дослідник мікросвіту</h2>
+      <p>Заверши дослідницький звіт.</p>
+      <div class="task">
+        <label><b>Який препарат було б найцікавіше розглянути під мікроскопом і чому?</b></label>
+        <textarea id="favorite" placeholder="Моя відповідь..."></textarea>
+      </div>
+      <div class="task">
+        <label><b>Що потрібно робити, щоб отримати чітке зображення?</b></label>
+        <textarea id="focusAnswer" placeholder="Моя відповідь..."></textarea>
+      </div>
+      <div class="task">
+        <label><b>Моє головне відкриття сьогодні:</b></label>
+        <textarea id="discovery" placeholder="Напиши одне речення..."></textarea>
+      </div>
+      <div class="nav"><button class="purple" onclick="finish()">🏆 Завершити експедицію</button></div>
+    </section>
+
+    <section class="card hidden" id="result">
+      <h2>🏆 Експедицію завершено!</h2>
+      <p id="resultName"></p>
+      <div class="final-badge" id="badge"></div>
+      <p class="score" id="score"></p>
+      <div class="task"><b>Твоє наукове відкриття:</b><br><span id="resultDiscovery">—</span></div>
+      <div class="nav">
+        <button onclick="window.print()">🖨️ Надрукувати результат</button>
+        <button class="secondary" onclick="location.reload()">🔄 Почати знову</button>
+      </div>
+    </section>
+  </main>
+  <div class="footer">🔬 Інтерактивний навчальний аркуш • «Мікроскопічна експедиція»</div>
+</div>
+
+<script>
+let score=0, answered={}, started=false, current=0;
+const totalSteps=5;
+function startExpedition(){
+ const n=document.getElementById('studentName').value.trim();
+ if(!n){alert('Введи своє ім’я, щоб розпочати.');return;}
+ started=true;
+ document.getElementById('start').classList.add('hidden');
+ document.getElementById('main').classList.remove('hidden');
+ updateProgress(1);
+}
+function updateProgress(step){
+ current=step;
+ document.getElementById('progress').style.width=(step/totalSteps*100)+'%';
+ document.getElementById('progressLabel').textContent=`Рівень ${step} із ${totalSteps}`;
+}
+function showPart(title,text){
+ document.getElementById('partInfo').innerHTML=`<b>${title}</b><br>${text}`;
+}
+function answer(id,btn,correct){
+ if(answered[id]) return;
+ answered[id]=true;
+ const box=document.getElementById(id);
+ [...box.querySelectorAll('button')].forEach(b=>b.disabled=true);
+ btn.classList.add(correct?'correct':'wrong');
+ const fb=document.getElementById(id+'fb');
+ if(correct){score++;fb.className='feedback good';fb.textContent='✔ Правильно! +1 бал';}
+ else{fb.className='feedback bad';fb.textContent='✖ Не зовсім. Спробуй проаналізувати функцію або ознаку ще раз.';}
+}
+function nextStep(n){
+ document.getElementById('step'+n).classList.add('hidden');
+ const next=n+1;
+ const el=document.getElementById('step'+next);
+ if(el){el.classList.remove('hidden');updateProgress(next);window.scrollTo({top:0,behavior:'smooth'});}
+}
+let dragged=null;
+document.querySelectorAll('.seq-item').forEach(item=>{
+ item.addEventListener('dragstart',()=>{dragged=item;item.classList.add('dragging')});
+ item.addEventListener('dragend',()=>{item.classList.remove('dragging')});
+ item.addEventListener('dragover',e=>e.preventDefault());
+ item.addEventListener('drop',e=>{
+   e.preventDefault();
+   if(dragged===item)return;
+   const seq=document.getElementById('sequence');
+   const items=[...seq.children];
+   const a=items.indexOf(dragged),b=items.indexOf(item);
+   if(a<b)seq.insertBefore(dragged,item.nextSibling);else seq.insertBefore(dragged,item);
+ });
+});
+function checkSequence(){
+ const items=[...document.querySelectorAll('.seq-item')];
+ const correct=items.every((el,i)=>Number(el.dataset.order)===i+1);
+ const fb=document.getElementById('seqFb');
+ if(correct){
+   if(!answered.seq){score+=2;answered.seq=true;}
+   fb.className='feedback good';fb.textContent='✔ Чудово! Послідовність правильна. +2 бали';
+ }else{
+   fb.className='feedback bad';fb.textContent='✖ Є помилка. Перевір, що спочатку потрібно обрати мале збільшення та налаштувати освітлення.';
+ }
+}
+function finish(){
+ const name=document.getElementById('studentName').value.trim();
+ document.querySelectorAll('.step').forEach(s=>s.classList.add('hidden'));
+ document.getElementById('result').classList.remove('hidden');
+ updateProgress(5);
+ let badge='';
+ if(score>=6) badge='🧬 МІКРОСКОПІЧНИЙ ЕКСПЕРТ';
+ else if(score>=4) badge='🔬 ДОСЛІДНИК МІКРОСВІТУ';
+ else if(score>=2) badge='🧪 ЛАБОРАНТ-ПОЧАТКІВЕЦЬ';
+ else badge='🔍 ЮНИЙ ДОСЛІДНИК';
+ document.getElementById('resultName').textContent=`Дослідник: ${name}`;
+ document.getElementById('badge').textContent=badge;
+ document.getElementById('score').textContent=`Твій результат: ${score} балів`;
+ document.getElementById('resultDiscovery').textContent=document.getElementById('discovery').value.trim() || 'Відкриття ще не записано.';
+ window.scrollTo({top:0,behavior:'smooth'});
+}
+</script>
+</body>
+</html>
